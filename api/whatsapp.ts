@@ -220,15 +220,56 @@ export async function sendWhatsAppMessage(
 	}
 }
 
-function normalizePhoneNumber(phone: string, defaultCountryCode: string = "250"): string {
-	let cleaned = phone.replace(/[\s+\-()]/g, "").trim();
+/**
+ * Validates and normalizes phone numbers
+ * @param phone - Phone number to normalize
+ * @param defaultCountryCode - Default country code (default: "250" for Rwanda)
+ * @returns Normalized phone number or null if invalid
+ */
+function normalizePhoneNumber(phone: string | undefined | null, defaultCountryCode: string = "250"): string | null {
+	if (!phone || typeof phone !== "string") {
+		return null;
+	}
+
+	// Remove all non-digit characters except +
+	let cleaned = phone.replace(/[\s\-()]/g, "").trim();
+	
+	// Remove leading + if present
+	if (cleaned.startsWith("+")) {
+		cleaned = cleaned.substring(1);
+	}
+
+	// Validate: must be digits only and reasonable length
+	if (!/^\d{9,15}$/.test(cleaned)) {
+		return null;
+	}
+
+	// Handle local format (starts with 0)
 	if (cleaned.startsWith("0") && cleaned.length === 10) {
 		cleaned = defaultCountryCode + cleaned.substring(1);
 	}
+	
+	// Handle 9-digit numbers (assume local without leading 0)
 	if (cleaned.length === 9 && /^\d{9}$/.test(cleaned)) {
 		cleaned = defaultCountryCode + cleaned;
 	}
+
+	// Final validation: must be 10-15 digits
+	if (!/^\d{10,15}$/.test(cleaned)) {
+		return null;
+	}
+
 	return cleaned;
+}
+
+/**
+ * Validates phone number format for WhatsApp API
+ * @param phone - Phone number to validate
+ * @returns true if valid, false otherwise
+ */
+function isValidPhoneNumber(phone: string): boolean {
+	const normalized = normalizePhoneNumber(phone);
+	return normalized !== null && /^\d{10,15}$/.test(normalized);
 }
 
 export async function sendPickupOrderToDryCleaner(
@@ -249,8 +290,26 @@ export async function sendPickupOrderToDryCleaner(
 		};
 	}
 
-	const normalizedPhone = dryCleanerPhone.startsWith("+") ? dryCleanerPhone : `+${dryCleanerPhone}`;
+	// Normalize and validate phone number
+	const normalizedPhoneNumber = normalizePhoneNumber(dryCleanerPhone);
+	if (!normalizedPhoneNumber) {
+		return {
+			success: false,
+			error: `Invalid dry cleaner phone number format: ${dryCleanerPhone}. Expected a valid international phone number (10-15 digits).`,
+		};
+	}
+
+	const normalizedPhone = `+${normalizedPhoneNumber}`;
 	const message = formatPickupOrderMessage(order);
+	
+	// Validate message length (WhatsApp limit is 4096 characters)
+	if (message.length > 4096) {
+		return {
+			success: false,
+			error: `Order message is too long (${message.length} characters). Maximum allowed is 4096 characters.`,
+		};
+	}
+
 	return sendWhatsAppMessageTwilio(normalizedPhone, message);
 }
 
@@ -259,8 +318,35 @@ export async function sendCustomerConfirmation(
 	customerName: string,
 	pickupDateTime: string,
 ): Promise<WhatsAppResponse> {
-	const normalizedPhone = customerPhone.startsWith("+") ? customerPhone : `+${customerPhone}`;
-	const message = formatCustomerConfirmationMessage(customerName, pickupDateTime);
+	// Normalize and validate phone number
+	const normalizedPhoneNumber = normalizePhoneNumber(customerPhone);
+	if (!normalizedPhoneNumber) {
+		return {
+			success: false,
+			error: `Invalid customer phone number format: ${customerPhone}. Expected a valid international phone number (10-15 digits).`,
+		};
+	}
+
+	// Sanitize customer name
+	const sanitizedName = (customerName || "").trim().substring(0, 100);
+	if (!sanitizedName) {
+		return {
+			success: false,
+			error: "Customer name is required and cannot be empty.",
+		};
+	}
+
+	const normalizedPhone = `+${normalizedPhoneNumber}`;
+	const message = formatCustomerConfirmationMessage(sanitizedName, pickupDateTime || "");
+	
+	// Validate message length (WhatsApp limit is 4096 characters)
+	if (message.length > 4096) {
+		return {
+			success: false,
+			error: `Confirmation message is too long (${message.length} characters). Maximum allowed is 4096 characters.`,
+		};
+	}
+
 	return sendWhatsAppMessageTwilio(normalizedPhone, message);
 }
 
@@ -287,24 +373,88 @@ function getTwilioClient() {
 	};
 }
 
+/**
+ * Sends WhatsApp message via Twilio with timeout and better error handling
+ */
 export async function sendWhatsAppMessageTwilio(to: string, message: string): Promise<WhatsAppResponse> {
+	// Input validation
+	if (!to || typeof to !== "string" || !to.trim()) {
+		return {
+			success: false,
+			error: "Recipient phone number is required.",
+		};
+	}
+
+	if (!message || typeof message !== "string" || !message.trim()) {
+		return {
+			success: false,
+			error: "Message content is required.",
+		};
+	}
+
+	// Validate message length (Twilio/WhatsApp limit)
+	if (message.length > 4096) {
+		return {
+			success: false,
+			error: `Message is too long (${message.length} characters). Maximum allowed is 4096 characters.`,
+		};
+	}
+
 	try {
 		const { client, whatsAppNumber } = getTwilioClient();
 		
-		const response = await client.messages.create({
+		// Validate phone number format before sending
+		const cleanTo = to.replace(/^whatsapp:/, "").replace(/^\+/, "").trim();
+		if (!/^\d{10,15}$/.test(cleanTo)) {
+			return {
+				success: false,
+				error: `Invalid phone number format: ${to}. Expected 10-15 digits.`,
+			};
+		}
+
+		// Create a promise with timeout (30 seconds)
+		const timeoutPromise = new Promise<never>((_, reject) => {
+			setTimeout(() => reject(new Error("Request timeout: Twilio API call exceeded 30 seconds")), 30000);
+		});
+
+		const sendPromise = client.messages.create({
 			from: whatsAppNumber.trim(),
 			to: `whatsapp:${to.trim()}`,
-			body: message,
+			body: message.substring(0, 4096), // Ensure we don't exceed limit
 		});
+
+		const response = await Promise.race([sendPromise, timeoutPromise]);
 		
+		if (!response || !response.sid) {
+			return {
+				success: false,
+				error: "Twilio returned an invalid response (missing message SID).",
+			};
+		}
+
 		return { 
 			success: true, 
 			messageId: response.sid 
 		};
 	} catch (error: any) {
-		const errorMessage = error instanceof Error 
-			? error.message 
-			: "Unknown error occurred while sending WhatsApp message";
+		// Handle specific Twilio error codes
+		let errorMessage = "Unknown error occurred while sending WhatsApp message";
+		
+		if (error instanceof Error) {
+			errorMessage = error.message;
+			
+			// Provide helpful error messages for common issues
+			if (error.message.includes("timeout")) {
+				errorMessage = "Request timeout: The messaging service did not respond in time. Please try again.";
+			} else if (error.message.includes("Invalid") || error.message.includes("invalid")) {
+				errorMessage = `Invalid request: ${error.message}. Please check phone number format and credentials.`;
+			} else if (error.message.includes("Authentication")) {
+				errorMessage = "Authentication failed: Please check your Twilio credentials (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN).";
+			} else if (error.message.includes("not in allowed list")) {
+				errorMessage = "Phone number not in allowed list: The recipient number must be added to your Twilio allowed list for WhatsApp.";
+			}
+		}
+		
 		return { 
 			success: false, 
 			error: errorMessage 

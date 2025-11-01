@@ -85,8 +85,21 @@ export default function Index() {
         return;
       }
 
-      // Clean phone number (remove spaces, +, etc.)
-      const cleanedPhone = bookingData.phone.replace(/[\s+\-()]/g, "");
+      // Clean and validate phone number (remove spaces, +, etc.)
+      const cleanedPhone = bookingData.phone 
+        ? bookingData.phone.replace(/[\s+\-()]/g, "").trim() 
+        : "";
+
+      // Basic phone validation (client-side)
+      if (cleanedPhone && !/^\d{9,15}$/.test(cleanedPhone)) {
+        toast({
+          title: "Invalid Phone Number",
+          description: "Please enter a valid phone number (9-15 digits).",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
       const orderData: PickupOrderRequest = {
         customerName: bookingData.name.trim(),

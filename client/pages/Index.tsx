@@ -175,7 +175,7 @@ export default function Index() {
       title: "Free Pickup & Delivery",
       description: "We come to you, anywhere in Kigali",
     },
-   
+    {
       icon: Droplets,
       title: "Quality Assured",
       description: "100% satisfaction guaranteed on all services",

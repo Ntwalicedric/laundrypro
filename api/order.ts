@@ -44,62 +44,69 @@ function generateOrderId(): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "POST") {
-    res.status(405).json({ success: false, error: "Method not allowed" });
-    return;
-  }
-
-  let body = req.body;
-  // Vercel may not parse JSON automatically
-  if (!body || typeof body === "string") {
-    try {
-      body = JSON.parse(body || '{}');
-    } catch {
-      res.status(400).json({ success: false, error: "Invalid JSON" });
+  try {
+    if (req.method !== "POST") {
+      res.status(405).json({ success: false, error: "Method not allowed" });
       return;
     }
-  }
 
-  const validationResult = orderSchema.safeParse(body);
-  if (!validationResult.success) {
-    res.status(400).json({
-      success: false,
-      error: validationResult.error.errors
-        .map((e) => `${e.path.join(".")}: ${e.message}`)
-        .join(", "),
+    let body = req.body;
+    // Vercel may not parse JSON automatically
+    if (!body || typeof body === "string") {
+      try {
+        body = JSON.parse(body || '{}');
+      } catch {
+        res.status(400).json({ success: false, error: "Invalid JSON" });
+        return;
+      }
+    }
+
+    const validationResult = orderSchema.safeParse(body);
+    if (!validationResult.success) {
+      res.status(400).json({
+        success: false,
+        error: validationResult.error.errors
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
+          .join(", "),
+      });
+      return;
+    }
+
+    const order = validationResult.data;
+    const orderId = generateOrderId();
+
+    const dryCleanerResponse = await sendPickupOrderToDryCleaner(order);
+    if (!dryCleanerResponse.success) {
+      res.status(500).json({
+        success: false,
+        orderId,
+        error: `Failed to send order to dry cleaner: ${dryCleanerResponse.error}`,
+      });
+      return;
+    }
+
+    let customerMessageId;
+    if (order.customerPhone) {
+      const customerResponse = await sendCustomerConfirmation(
+        order.customerPhone,
+        order.customerName,
+        order.pickupDateTime || "",
+      );
+      if (customerResponse.success) {
+        customerMessageId = customerResponse.messageId;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      orderId,
+      messageId: dryCleanerResponse.messageId,
+      message: "Order submitted successfully",
     });
-    return;
-  }
-
-  const order = validationResult.data;
-  const orderId = generateOrderId();
-
-  const dryCleanerResponse = await sendPickupOrderToDryCleaner(order);
-  if (!dryCleanerResponse.success) {
+  } catch (err: any) {
     res.status(500).json({
       success: false,
-      orderId,
-      error: `Failed to send order to dry cleaner: ${dryCleanerResponse.error}`,
+      error: err?.message || "An unexpected server error occurred"
     });
-    return;
   }
-
-  let customerMessageId;
-  if (order.customerPhone) {
-    const customerResponse = await sendCustomerConfirmation(
-      order.customerPhone,
-      order.customerName,
-      order.pickupDateTime || "",
-    );
-    if (customerResponse.success) {
-      customerMessageId = customerResponse.messageId;
-    }
-  }
-
-  res.status(200).json({
-    success: true,
-    orderId,
-    messageId: dryCleanerResponse.messageId,
-    message: "Order submitted successfully",
-  });
 }

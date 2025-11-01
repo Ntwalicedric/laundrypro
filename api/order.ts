@@ -72,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    const order = validationResult.data;
+  const order = validationResult.data as import("../shared/api").PickupOrderRequest;
     const orderId = generateOrderId();
 
     const dryCleanerResponse = await sendPickupOrderToDryCleaner(order);

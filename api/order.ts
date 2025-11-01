@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   sendPickupOrderToDryCleaner,
   sendCustomerConfirmation,
-} from "./whatsapp";
+} from "./whatsapp.js";
 
 const orderSchema = z.object({
   customerName: z.string().min(1, "Customer name is required"),

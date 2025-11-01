@@ -3,7 +3,7 @@ import {
 	PickupOrderRequest,
 	OrderItem,
 	WhatsAppResponse,
-} from "../shared/api";
+} from "../shared/api.js";
 import twilio from "twilio";
 
 

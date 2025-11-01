@@ -264,20 +264,50 @@ export async function sendCustomerConfirmation(
 	return sendWhatsAppMessageTwilio(normalizedPhone, message);
 }
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-const authToken = process.env.TWILIO_AUTH_TOKEN!;
-const twilioClient = twilio(accountSid, authToken);
-const twilioWhatsAppNumber = process.env.TWILIO_WHATSAPP_NUMBER!;
+function getTwilioClient() {
+	const accountSid = process.env.TWILIO_ACCOUNT_SID;
+	const authToken = process.env.TWILIO_AUTH_TOKEN;
+	const twilioWhatsAppNumber = process.env.TWILIO_WHATSAPP_NUMBER;
 
-export async function sendWhatsAppMessageTwilio(to: string, message: string) {
+	if (!accountSid || !authToken || !twilioWhatsAppNumber) {
+		const missingVars = [];
+		if (!accountSid) missingVars.push("TWILIO_ACCOUNT_SID");
+		if (!authToken) missingVars.push("TWILIO_AUTH_TOKEN");
+		if (!twilioWhatsAppNumber) missingVars.push("TWILIO_WHATSAPP_NUMBER");
+		
+		throw new Error(
+			`Missing required Twilio environment variables: ${missingVars.join(", ")}. ` +
+			`Please set these in your deployment environment variables.`
+		);
+	}
+
+	return {
+		client: twilio(accountSid, authToken),
+		whatsAppNumber: twilioWhatsAppNumber,
+	};
+}
+
+export async function sendWhatsAppMessageTwilio(to: string, message: string): Promise<WhatsAppResponse> {
 	try {
-		const response = await twilioClient.messages.create({
-			from: twilioWhatsAppNumber.trim(),
+		const { client, whatsAppNumber } = getTwilioClient();
+		
+		const response = await client.messages.create({
+			from: whatsAppNumber.trim(),
 			to: `whatsapp:${to.trim()}`,
 			body: message,
 		});
-		return { success: true, sid: response.sid };
+		
+		return { 
+			success: true, 
+			messageId: response.sid 
+		};
 	} catch (error: any) {
-		return { success: false, error: error.message };
+		const errorMessage = error instanceof Error 
+			? error.message 
+			: "Unknown error occurred while sending WhatsApp message";
+		return { 
+			success: false, 
+			error: errorMessage 
+		};
 	}
 }

@@ -6,7 +6,6 @@ import {
 } from "../shared/api";
 import twilio from "twilio";
 
-// (Paste all code from server/services/whatsapp.ts here)
 
 interface WhatsAppConfig {
 	accessToken: string;

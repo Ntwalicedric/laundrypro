@@ -97,6 +97,7 @@ export default function Index() {
         customerPhone: cleanedPhone || undefined,
       };
 
+
       const response = await fetch("/api/order", {
         method: "POST",
         headers: {
@@ -105,7 +106,15 @@ export default function Index() {
         body: JSON.stringify(orderData),
       });
 
-      const result: OrderSubmissionResponse = await response.json();
+      let result: OrderSubmissionResponse | undefined;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        result = await response.json();
+      } else {
+        // Not JSON, get text for debugging
+        const text = await response.text();
+        throw new Error(text || "Server returned an invalid response");
+      }
 
       if (!response.ok || !result.success) {
         throw new Error(result.error || "Failed to submit order");

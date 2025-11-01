@@ -6,7 +6,7 @@ import {
 import {
   sendPickupOrderToDryCleaner,
   sendCustomerConfirmation,
-} from "../services/whatsapp";
+} from "../../api/whatsapp";
 import { z } from "zod";
 
 /**

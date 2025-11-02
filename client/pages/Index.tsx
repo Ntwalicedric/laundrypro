@@ -167,9 +167,9 @@ export default function Index() {
   const services = [
     {
       icon: Droplets,
-      title: "Washing",
+      title: "Washing & Ironing",
       description:
-        "Professional washing with premium detergents for all fabric types",
+        "Professional washing and ironing with premium detergents for all fabric types",
       color: "from-blue-500 to-cyan-500",
     },
     {
@@ -179,10 +179,10 @@ export default function Index() {
       color: "from-purple-500 to-pink-500",
     },
     {
-      icon: Zap,
-      title: "Pressing",
-      description: "Fast professional pressing and ironing services",
-      color: "from-orange-500 to-red-500",
+      icon: MapPin,
+      title: "Home Pickup & Delivery",
+      description: "Fast pickup & delivery within 4 hours for Kigali area",
+      color: "from-green-500 to-emerald-500",
     },
   ];
 
@@ -190,7 +190,7 @@ export default function Index() {
     {
       icon: Clock,
       title: "Fast & Reliable",
-      description: "Same-day delivery available in select areas",
+      description: "Pick up & deliver within 4 hours for Kigali area",
     },
     {
       icon: MapPin,
@@ -230,7 +230,7 @@ export default function Index() {
                   Delivered
                 </h1>
                 <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
-                  Experience premium laundry service in Kigali. Book your pickup
+                  Experience premium laundry service in Kigali. Fast turnaround - pick up & deliver within 4 hours. Book your pickup
                   in one click, and we'll handle the rest with care and
                   precision.
                 </p>
@@ -270,10 +270,10 @@ export default function Index() {
                   <div className="relative bg-gradient-to-br from-primary/10 to-secondary/10 backdrop-blur rounded-3xl p-8 border border-primary/20">
                     <div className="grid grid-cols-2 gap-4">
                       {[
-                        "🧺 Professional Washing",
-                        "🌬️ Express Dry Cleaning",
-                        "👔 Premium Pressing",
-                        "📦 Free Pickup & Delivery",
+                        "🧺 Washing & Ironing",
+                        "🌬️ Dry Cleaning",
+                        "🏥 Hospital & Business Solutions",
+                        "📦 Pickup & Delivery (4 hours)",
                       ].map((item, i) => (
                         <div key={i} className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -365,9 +365,10 @@ export default function Index() {
                         onChange={handleBookingChange}
                         className="w-full px-4 py-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                       >
-                        <option value="washing">Washing</option>
+                        <option value="washing">Washing & Ironing</option>
                         <option value="dry-cleaning">Dry Cleaning</option>
-                        <option value="pressing">Pressing</option>
+                        <option value="pickup-delivery">Home Pickup & Delivery</option>
+                        <option value="hospital-business">Hospital & Business Solutions</option>
                       </select>
                     </div>
                     <div>
@@ -572,7 +573,7 @@ export default function Index() {
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
               Join hundreds of satisfied customers in Kigali who trust
-              LaundryPro for their laundry needs.
+              Fast Track Laundry for their laundry needs. Pick up & deliver within 4 hours!
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

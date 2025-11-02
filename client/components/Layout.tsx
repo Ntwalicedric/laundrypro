@@ -25,7 +25,7 @@ export default function Layout({ children }: LayoutProps) {
                 <Droplet className="w-6 h-6 text-white" />
               </div>
               <span className="font-bold text-xl hidden sm:inline bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                LaundryPro
+                Fast Track Laundry
               </span>
             </Link>
 
@@ -96,10 +96,10 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
                   <Droplet className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-lg">LaundryPro</span>
+                <span className="font-bold text-lg">Fast Track Laundry</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Professional laundry services for Kigali, Rwanda.
+                Professional laundry services in Kigali, Rwanda. Fast turnaround - pick up & deliver within 4 hours.
               </p>
             </div>
 
@@ -154,8 +154,8 @@ export default function Layout({ children }: LayoutProps) {
               <h4 className="font-semibold mb-4">Contact</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>📞 {displayPhoneNumber}</li>
-                <li>✉️ info@laundrypro.rw</li>
-                <li>📍 Kigali, Rwanda</li>
+                <li>✉️ fasttracklaundry.2024@gmail.com</li>
+                <li>📍 Kimironko, KK13AV, Kigali (opposite Saint Paul School)</li>
               </ul>
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="border-t border-border pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-sm text-muted-foreground">
-                © 2024 LaundryPro. All rights reserved.
+                © 2024 Fast Track Laundry Company Ltd. All rights reserved.
               </p>
               <div className="flex gap-4 mt-4 md:mt-0">
                 <a

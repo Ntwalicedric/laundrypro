@@ -1,26 +1,26 @@
 import Layout from "@/components/Layout";
-import { Droplets, Wind, Zap, Shirt, ShirtIcon, Sparkles } from "lucide-react";
+import { Droplets, Wind, Zap, Shirt, ShirtIcon, Sparkles, MapPin } from "lucide-react";
 import { getWhatsAppLink, defaultInquiryMessage } from "@/lib/whatsapp";
 
 export default function Services() {
   const services = [
     {
       icon: Droplets,
-      title: "Standard Washing",
-      description: "Professional washing for everyday clothes",
-      price: "Starting from RWF 5,000",
+      title: "Washing & Ironing",
+      description: "Professional washing and ironing services",
+      price: "Competitive pricing",
       details: [
-        "Gentle wash for delicate fabrics",
-        "Color-safe detergents",
-        "Quick turnaround time",
-        "Free pickup & delivery",
+        "Professional washing with premium detergents",
+        "Expert ironing and pressing",
+        "Fast turnaround - within 4 hours",
+        "All fabric types handled with care",
       ],
     },
     {
       icon: Wind,
       title: "Dry Cleaning",
       description: "Expert dry cleaning for formal and delicate wear",
-      price: "Starting from RWF 15,000",
+      price: "Competitive pricing",
       details: [
         "Professional dry cleaning process",
         "Stain removal service",
@@ -29,51 +29,27 @@ export default function Services() {
       ],
     },
     {
-      icon: Zap,
-      title: "Express Service",
-      description: "Fast service for urgent laundry needs",
-      price: "Starting from RWF 8,000",
+      icon: MapPin,
+      title: "Home Pickup & Delivery",
+      description: "Convenient pickup and delivery service",
+      price: "Free within Kigali",
       details: [
-        "24-hour turnaround",
-        "Same-day delivery available",
-        "Priority handling",
-        "Best for urgent needs",
-      ],
-    },
-    {
-      icon: Shirt,
-      title: "Pressing & Ironing",
-      description: "Professional pressing for perfect presentation",
-      price: "Starting from RWF 3,000",
-      details: [
-        "Expert pressing techniques",
-        "Wrinkle-free guarantee",
-        "Steam pressing for fabrics",
-        "Perfect for events",
+        "Free pickup & delivery in Kigali area",
+        "Pick up & deliver within 4 hours",
+        "Flexible scheduling",
+        "Door-to-door service",
       ],
     },
     {
       icon: ShirtIcon,
-      title: "Bulk Laundry",
-      description: "Perfect for families and businesses",
-      price: "Special rates available",
-      details: [
-        "Customized pricing",
-        "Flexible scheduling",
-        "Regular pickup & delivery",
-        "Dedicated service",
-      ],
-    },
-    {
-      icon: Sparkles,
-      title: "Specialized Care",
-      description: "Unique care for specific items",
+      title: "Hospital & Business Laundry Solutions",
+      description: "Specialized solutions for institutions",
       price: "Contact for pricing",
       details: [
-        "Leather & suede cleaning",
-        "Wool & cashmere care",
-        "Shoe cleaning",
-        "Carpet & upholstery cleaning",
+        "Bulk laundry services",
+        "Regular scheduled pickups",
+        "Customized solutions",
+        "Dedicated account management",
       ],
     },
   ];

@@ -1,6 +1,6 @@
 export const whatsappConfig = {
-  phoneNumber: "250784123456",
-  businessName: "LaundryPro",
+  phoneNumber: "250794939367",
+  businessName: "Fast Track Laundry",
 };
 
 export const defaultInquiryMessage =

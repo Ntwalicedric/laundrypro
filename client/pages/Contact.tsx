@@ -21,19 +21,19 @@ export default function Contact() {
       icon: Mail,
       title: "Email",
       description: "Send us an email anytime",
-      value: "info@laundrypro.rw",
+      value: "fasttracklaundry.2024@gmail.com",
     },
     {
       icon: MapPin,
       title: "Location",
       description: "Visit us in Kigali",
-      value: "Kigali, Rwanda",
+      value: "Kimironko, KK13AV, Kigali (opposite Saint Paul School)",
     },
     {
       icon: Clock,
       title: "Hours",
       description: "We're open every day",
-      value: "8:00 AM - 8:00 PM",
+      value: "7:00 AM – 10:00 PM daily",
     },
   ];
 
